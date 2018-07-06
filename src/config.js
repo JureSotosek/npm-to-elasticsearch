@@ -10,7 +10,7 @@ export default {
   password: 'n3UOpLkY73Du8T4Dg5agvCg5',
   indexName: 'npm-registry',
   docType: '_doc',
-  newIndex: true,
-  catchUpSince: 0,
-  batchSize: 1000,
+  bootstrap: true,
+  caughtUpTo: null,
+  bootstrapBatchSize: 200,
 };

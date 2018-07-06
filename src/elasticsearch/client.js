@@ -14,7 +14,7 @@ export default async function getClient() {
     httpAuth: `${config.user}:${config.password}`,
   });
 
-  if (config.newIndex) {
+  if (config.bootstrap) {
     await putTemplate(client);
   }
 

@@ -1,45 +1,70 @@
 import PouchDB from 'pouchdb';
-import indexPackage from './indexPackages';
+import indexPackages from './indexPackages';
+import { getLastSeq } from './npm';
 import config from './config';
 
-const npm = new PouchDB('https://replicate.npmjs.com/registry');
+const npmRegistry = new PouchDB('https://replicate.npmjs.com/registry');
+
+const defaultOptions = {
+  include_docs: true,
+  conflicts: false,
+  attachments: false,
+};
 
 async function main() {
-  //index all the unindexed documents in bulk
-  const caughtUpTo = await catchUpWithChanged();
-  //index changes as they happen
-  await trackChanges(caughtUpTo);
+  if (config.bootstrap) {
+    //get the last trusted seq
+    const lastSeq = await getLastSeq();
+    //index all the already existing documents
+    await bootstrap();
+    //keep track of further changes
+    await trackChanges(lastSeq);
+  } else {
+    await trackChanges(config.caughtUpTo || 0);
+  }
 }
 
 main().catch(error);
 
-async function catchUpWithChanged() {
-  console.log('Starting to catch up with changes!');
+async function bootstrap() {
+  console.log('Starting the bootstrap!');
 
-  return new Promise((resolve, reject) => {
-    const changes = npm.changes({
-      include_docs: true,
-      since: config.catchUpSince,
-      batch_size: config.batchSize,
-    });
+  await bootstrapSinceLastId();
 
-    changes.on('change', change => {
-      indexPackage(change);
-    });
+  async function bootstrapSinceLastId(lastId) {
+    const options =
+      lastId === undefined
+        ? {}
+        : {
+            startkey: lastId,
+            skip: 1,
+          };
 
-    changes.on('complete', info => {
-      resolve(info.last_seq);
-    });
+    return npmRegistry
+      .allDocs({
+        ...defaultOptions,
+        ...options,
+        limit: config.bootstrapBatchSize,
+      })
+      .then(async res => {
+        if (res.rows.length === 0) {
+          console.log('Bootstrap done!');
+        }
 
-    changes.on('error', reject);
-  });
+        const newLastId = res.rows[res.rows.length - 1].id;
+
+        return indexPackages(res.rows).then(() =>
+          bootstrapSinceLastId(newLastId)
+        );
+      });
+  }
 }
 
 async function trackChanges(caughtUpTo) {
   console.log('Live tracking of changes has started!');
 
   return new Promise((resolve, reject) => {
-    const changes = npm.changes({
+    const changes = npmRegistry.changes({
       include_docs: true,
       live: true,
       since: caughtUpTo,
@@ -47,7 +72,7 @@ async function trackChanges(caughtUpTo) {
     });
 
     changes.on('change', change => {
-      indexPackage(change);
+      indexPackages([change]);
     });
 
     changes.on('error', reject);
