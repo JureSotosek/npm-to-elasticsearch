@@ -29,15 +29,19 @@ main().catch(error);
 async function bootstrap() {
   console.log('Starting the bootstrap!');
 
-  await bootstrapSinceLastId();
+  await bootstrapSinceLastId(undefined, 0);
 
-  async function bootstrapSinceLastId(lastId) {
+  async function bootstrapSinceLastId(lastId, numberOfDocumentsBootstraped) {
+    console.log(
+      `Boostraped ${numberOfDocumentsBootstraped} documents until id: ${lastId}!`
+    );
+
     const options =
       lastId === undefined
         ? {}
         : {
             startkey: lastId,
-            skip: 1,
+            skip: 200,
           };
 
     return npmRegistry
@@ -54,7 +58,10 @@ async function bootstrap() {
         const newLastId = res.rows[res.rows.length - 1].id;
 
         return indexPackages(res.rows).then(() =>
-          bootstrapSinceLastId(newLastId)
+          bootstrapSinceLastId(
+            newLastId,
+            numberOfDocumentsBootstraped + config.bootstrapBatchSize
+          )
         );
       });
   }

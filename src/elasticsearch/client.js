@@ -1,5 +1,5 @@
 import elasticsearch from 'elasticsearch';
-import indexTemplate from './indexTemplate.json';
+//import indexTemplate from './indexTemplate.json';
 import config from '../config';
 
 let client = null;
@@ -14,9 +14,9 @@ export default async function getClient() {
     httpAuth: `${config.user}:${config.password}`,
   });
 
-  if (config.bootstrap) {
-    await putTemplate(client);
-  }
+  // if (config.bootstrap) {
+  //   await putTemplate(client);
+  // }
 
   return client;
 }
