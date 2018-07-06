@@ -41,7 +41,7 @@ async function bootstrap() {
         ? {}
         : {
             startkey: lastId,
-            skip: config.bootstrapBatchSize,
+            skip: 1,
           };
 
     return npmRegistry
