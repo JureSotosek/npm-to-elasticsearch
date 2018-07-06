@@ -12,5 +12,5 @@ export default {
   docType: '_doc',
   bootstrap: true,
   caughtUpTo: null,
-  bootstrapBatchSize: 500,
+  bootstrapBatchSize: 50,
 };
