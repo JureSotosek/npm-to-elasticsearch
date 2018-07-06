@@ -53,6 +53,7 @@ async function bootstrap() {
       .then(async res => {
         if (res.rows.length === 0) {
           console.log('Bootstrap done!');
+          return;
         }
 
         const newLastId = res.rows[res.rows.length - 1].id;
