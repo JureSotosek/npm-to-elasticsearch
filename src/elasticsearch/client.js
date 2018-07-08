@@ -1,5 +1,5 @@
 import elasticsearch from 'elasticsearch';
-import indexTemplate from './indexTemplate.json';
+import indexTemplate from './indexTemplate';
 import config from '../config';
 
 let client = null;

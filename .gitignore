@@ -3,3 +3,4 @@ lib/
 .env
 .npmrc
 .DS_Store
+yarn-error.log
