@@ -15,7 +15,7 @@ export default {
   indexingForTheFirstTime: true,
   bootstrap: true,
   lastBootstrapedId: undefined,
-  bootstrapBatchSize: 50,
+  bootstrapBatchSize: 100,
   catchUpToChangesBatchSize: 50,
   caughtUpTo: undefined,
 };

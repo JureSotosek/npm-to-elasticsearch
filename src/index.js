@@ -83,7 +83,7 @@ async function trackChanges(caughtUpTo) {
       since: caughtUpTo,
       live: true,
       batch_size: 1,
-      include_docs: true,
+      return_docs: false,
     });
 
     changes.on('change', change => {
