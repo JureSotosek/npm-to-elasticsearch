@@ -8,9 +8,14 @@ export default {
     'https://bc62ddde33c94b1e8d13ef529d16ec21.us-east-1.aws.found.io:9243',
   user: 'elastic',
   password: 'n3UOpLkY73Du8T4Dg5agvCg5',
-  indexName: 'npm-registry',
+  //if you change the indexName you also have to change the "index-patterns"
+  //field in the ./elasticsearch/indexTemplate.json file to match it
+  indexName: 'npm-registry-test',
   docType: '_doc',
+  indexingForTheFirstTime: true,
   bootstrap: true,
-  caughtUpTo: null,
+  lastBootstrapedId: undefined,
   bootstrapBatchSize: 50,
+  catchUpToChangesBatchSize: 50,
+  caughtUpTo: undefined,
 };

@@ -14,26 +14,28 @@ const defaultOptions = {
 async function main() {
   if (config.bootstrap) {
     //get the last trusted seq
-    const lastSeq = await getLastSeq();
+    const lastSeqAtBootstrap = await getLastSeq();
     //index all the already existing documents
-    await bootstrap();
+    await bootstrap(config.lastBootstrapedId);
     //keep track of further changes
-    await trackChanges(lastSeq);
-  } else {
-    await trackChanges(config.caughtUpTo || 0);
+    await trackChanges(lastSeqAtBootstrap);
   }
+  //keep track changes withouth bootstrap
+  await trackChanges(config.caughtUpTo || 0);
 }
 
 main().catch(error);
 
-async function bootstrap() {
-  console.log('Starting the bootstrap!');
+async function bootstrap(lastBootstrapedId) {
+  console.log('🏃🏼 Starting the bootstrap!');
 
-  await bootstrapSinceLastId(undefined, 0);
+  await bootstrapSinceLastId(lastBootstrapedId, 0);
 
   async function bootstrapSinceLastId(lastId, numberOfDocumentsBootstraped) {
     console.log(
-      `Boostraped ${numberOfDocumentsBootstraped} documents until id: ${lastId}!`
+      `🙄 Boostraping ${
+        config.bootstrapBatchSize
+      } docs from doc number ${numberOfDocumentsBootstraped} of Id: ${lastId}`
     );
 
     const options =
@@ -52,7 +54,7 @@ async function bootstrap() {
       })
       .then(async res => {
         if (res.rows.length === 0) {
-          console.log('Bootstrap done!');
+          console.log('🎉 Bootstrap done');
           return;
         }
 
@@ -69,18 +71,32 @@ async function bootstrap() {
 }
 
 async function trackChanges(caughtUpTo) {
-  console.log('Live tracking of changes has started!');
+  console.log('👀 Live tracking of changes has started');
+
+  if (caughtUpTo === undefined || caughtUpTo === null) {
+    throw 'Field "caughtUpTo" in config not supplied';
+  }
 
   return new Promise((resolve, reject) => {
     const changes = npmRegistry.changes({
-      include_docs: true,
-      live: true,
+      ...defaultOptions,
       since: caughtUpTo,
+      live: true,
       batch_size: 1,
+      include_docs: true,
     });
 
     changes.on('change', change => {
-      indexPackages([change]);
+      if (change.deleted) {
+        console.log(
+          `🤷🏼‍ Document: ${
+            change.doc.id
+          } has been deleted but will be kept in database`
+        );
+      } else {
+        console.log(`⚙️ Document: ${change.doc.name} has been added/changed`);
+        indexPackages([change]);
+      }
     });
 
     changes.on('error', reject);
@@ -88,6 +104,6 @@ async function trackChanges(caughtUpTo) {
 }
 
 function error(err) {
-  console.error(err);
+  console.error('Error:', err);
   process.exit(1);
 }

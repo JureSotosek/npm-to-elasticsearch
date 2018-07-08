@@ -4,9 +4,18 @@ import getClient from './elasticsearch/client';
 import config from './config';
 
 export default async function indexPackages(pkgs) {
-  const docs = formatPackages(pkgs);
+  const validPkgs = pkgs.filter(pkg => {
+    return pkg.doc.name !== undefined;
+  });
 
-  console.log(`Indexing ${pkgs.length} packages.`);
+  if (validPkgs.length === 0) {
+    console.log('🔍 No pkgs found in response.');
+    return;
+  }
+
+  const docs = formatPackages(validPkgs);
+
+  if (docs.len) console.log(`📎 Indexing ${docs.length} packages`);
 
   const bulkBody = concatMap(docs, doc => {
     return [
@@ -30,10 +39,10 @@ export default async function indexPackages(pkgs) {
       body: bulkBody,
     })
     .then(res => {
-      console.log(`Successfully indexed ${pkgs.length} packages.`);
+      console.log(`📌 Successfully indexed`);
     })
     .catch(error => {
-      console.log('Failed indexing with error:', error);
+      console.log('🚨 Failed indexing with error:', error);
     });
 }
 
@@ -79,7 +88,7 @@ function formatPackages(pkgs) {
             url: niceDoc.homepage.url || null,
           }
         : null,
-      //versions: niceDoc.versions || null,
+      versions: niceDoc.versions || null,
       readme: niceDoc.readme || null,
       created: niceDoc.created || null,
       modified: niceDoc.modified || null,
