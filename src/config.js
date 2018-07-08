@@ -15,7 +15,7 @@ export default {
   indexingForTheFirstTime: true,
   bootstrap: true,
   lastBootstrapedId: 'common-script',
-  bootstrapBatchSize: 10,
+  bootstrapBatchSize: 25,
   catchUpToChangesBatchSize: 25,
   caughtUpTo: undefined,
 };

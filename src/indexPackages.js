@@ -15,7 +15,7 @@ export default async function indexPackages(pkgs) {
 
   const docs = formatPackages(validPkgs);
 
-  if (docs.len) console.log(`📎 Indexing ${docs.length} packages`);
+  console.log(`📎 Indexing ${docs.length} packages`);
 
   const bulkBody = concatMap(docs, doc => {
     return [
