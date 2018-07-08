@@ -51,7 +51,6 @@ function formatPackages(pkgs) {
     const niceDoc = new nicePackage(pkg.doc);
 
     return {
-      ...niceDoc,
       seq: pkg.seq,
       name: niceDoc.name,
       version: niceDoc.version || null,
