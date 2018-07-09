@@ -48,7 +48,7 @@ async function bootstrap(lastBootstrapedId) {
         ? {}
         : {
             startkey: lastId,
-            skip: 300000,
+            skip: 1,
           };
 
     return npmRegistry
