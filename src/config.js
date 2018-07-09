@@ -14,7 +14,7 @@ export default {
   docType: '_doc',
   indexingForTheFirstTime: true,
   bootstrap: true,
-  lastBootstrapedId: 'common-script',
+  lastBootstrapedId: undefined,
   bootstrapBatchSize: 25,
   catchUpToChangesBatchSize: 25,
   caughtUpTo: undefined,

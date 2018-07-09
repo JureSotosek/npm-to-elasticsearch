@@ -45,7 +45,7 @@ async function bootstrap(lastBootstrapedId) {
 
     const options =
       lastId === undefined
-        ? {}
+        ? { startkey: '@' }
         : {
             startkey: lastId,
             skip: 1,
