@@ -29,13 +29,13 @@ main().catch(error);
 async function bootstrap(lastBootstrapedId) {
   console.log('🏃🏼 Starting the bootstrap!');
 
-  await bootstrapSinceLastId(lastBootstrapedId, 0);
+  await bootstrapLoop(lastBootstrapedId, 0);
 
-  async function bootstrapSinceLastId(lastId, numberOfDocumentsBootstraped) {
+  async function bootstrapLoop(lastId, numberOfDocumentsBootstraped) {
     console.log(
       `🙄 Boostraping ${
         config.bootstrapBatchSize
-      } docs from doc number ${numberOfDocumentsBootstraped} of Id: ${lastId}`
+      } docs from doc number ${numberOfDocumentsBootstraped} of id: ${lastId}`
     );
 
     const options =
@@ -61,7 +61,7 @@ async function bootstrap(lastBootstrapedId) {
         const newLastId = res.rows[res.rows.length - 1].id;
 
         return indexPackages(res.rows).then(() =>
-          bootstrapSinceLastId(
+          bootstrapLoop(
             newLastId,
             numberOfDocumentsBootstraped + config.bootstrapBatchSize
           )
@@ -71,10 +71,12 @@ async function bootstrap(lastBootstrapedId) {
 }
 
 async function trackChanges(caughtUpTo) {
-  console.log('👀 Live tracking of changes has started');
+  console.log(
+    `👀 Live tracking of changes since seq: ${caughtUpTo} has started`
+  );
 
   if (caughtUpTo === undefined || caughtUpTo === null) {
-    throw 'Field "caughtUpTo" in config not supplied';
+    throw 'Field "caughtUpTo" not supplied';
   }
 
   return new Promise((resolve, reject) => {
