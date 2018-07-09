@@ -11,14 +11,19 @@ const defaultOptions = {
   attachments: false,
 };
 
+const timeout = ms => new Promise(res => setTimeout(res, ms));
+
 async function main() {
   if (config.bootstrap) {
     //get the last trusted seq
     const lastSeqAtBootstrap = await getLastSeq();
     //index all the already existing documents
     await bootstrap(config.lastBootstrapedId);
+    //Catch up with changes that were missed
+    const seqToCatchUpTo = await getLastSeq();
+    await catchUpWithChanges(lastSeqAtBootstrap, seqToCatchUpTo);
     //keep track of further changes
-    await trackChanges(lastSeqAtBootstrap);
+    await trackChanges(seqToCatchUpTo);
   }
   //keep track changes withouth bootstrap
   await trackChanges(config.caughtUpTo || 0);
@@ -27,7 +32,7 @@ async function main() {
 main().catch(error);
 
 async function bootstrap(lastBootstrapedId) {
-  console.log('🏃🏼 Starting the bootstrap!');
+  console.log('🚀 Starting the bootstrap!');
 
   await bootstrapLoop(lastBootstrapedId, 0);
 
@@ -68,6 +73,42 @@ async function bootstrap(lastBootstrapedId) {
         );
       });
   }
+}
+
+async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
+  console.log(
+    `🏎 Catching up with missed changes from seq: ${lastSeqAtBootstrap} to seq: ${catchUpto}`
+  );
+
+  return new Promise((resolve, reject) => {
+    const changes = npmRegistry.changes({
+      ...defaultOptions,
+      since: lastSeqAtBootstrap,
+      batch_size: config.catchUpToChangesBatchSize,
+      live: true,
+      return_docs: false,
+    });
+
+    changes.on('change', change => {
+      if (change.deleted) {
+        console.log(
+          `🤷🏼‍ Document: ${
+            change.doc.id
+          } has been deleted but will be kept in the database`
+        );
+      } else {
+        console.log(`⚙️ Document: ${change.doc.name} has been added/changed`);
+        indexPackages([change]);
+      }
+
+      if (change.seq >= catchUpto) {
+        console.log('🔥Caught up with changes');
+        changes.cancel();
+      }
+    });
+    changes.on('complete', resolve); // Called when cancel() called
+    changes.on('error', reject);
+  });
 }
 
 async function trackChanges(caughtUpTo) {
