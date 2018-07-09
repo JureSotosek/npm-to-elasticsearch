@@ -1,4 +1,6 @@
 import PouchDB from 'pouchdb';
+import cargo from 'async/cargo';
+import queue from 'async/queue';
 import indexPackages from './indexPackages';
 import { getLastSeq } from './npm';
 import config from './config';
@@ -10,8 +12,6 @@ const defaultOptions = {
   conflicts: false,
   attachments: false,
 };
-
-const timeout = ms => new Promise(res => setTimeout(res, ms));
 
 async function main() {
   if (config.bootstrap) {
@@ -48,7 +48,7 @@ async function bootstrap(lastBootstrapedId) {
         ? {}
         : {
             startkey: lastId,
-            skip: 1,
+            skip: 300000,
           };
 
     return npmRegistry
@@ -89,21 +89,33 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
       return_docs: false,
     });
 
+    const q = cargo((pkgs, done) => {
+      indexPackages(pkgs)
+        .then(() => {
+          if (pkgs.pop().seq >= catchUpto) {
+            changes.cancel();
+          }
+        })
+        .then(done)
+        .catch(done);
+    }, config.catchUpToChangesBatchSize);
+
     changes.on('change', change => {
       if (change.deleted) {
         console.log(
-          `🤷🏼‍ Document: ${
+          `🤷🏼‍ Seq: ${change.seq}: ${
             change.doc.id
           } has been deleted but will be kept in the database`
         );
       } else {
-        console.log(`⚙️ Document: ${change.doc.name} has been added/changed`);
-        indexPackages([change]);
-      }
-
-      if (change.seq >= catchUpto) {
-        console.log('🔥Caught up with changes');
-        changes.cancel();
+        console.log(
+          `⚙️ Seq: ${change.seq}: ${change.doc.name} has been added/changed`
+        );
+        q.push(change, err => {
+          if (err) {
+            reject(err);
+          }
+        });
       }
     });
     changes.on('complete', resolve); // Called when cancel() called
@@ -129,16 +141,28 @@ async function trackChanges(caughtUpTo) {
       return_docs: false,
     });
 
+    const q = queue((pkg, done) => {
+      indexPackages([pkg])
+        .then(done)
+        .catch(done);
+    }, 1);
+
     changes.on('change', change => {
       if (change.deleted) {
         console.log(
-          `🤷🏼‍ Document: ${
+          `🤷🏼‍ Seq: ${change.seq}: ${
             change.doc.id
           } has been deleted but will be kept in database`
         );
       } else {
-        console.log(`⚙️ Document: ${change.doc.name} has been added/changed`);
-        indexPackages([change]);
+        console.log(
+          `⚙️ Seq: ${change.seq}: ${change.doc.name} has been added/changed`
+        );
+        q.push(change, err => {
+          if (err) {
+            reject(err);
+          }
+        });
       }
     });
 
