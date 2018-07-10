@@ -1,17 +1,22 @@
 import PouchDB from 'pouchdb';
 import cargo from 'async/cargo';
-import queue from 'async/queue';
 import indexPackages from './indexPackages';
 import { getLastSeq } from './npm';
 import config from './config';
 
-const npmRegistry = new PouchDB('https://replicate.npmjs.com/registry');
+const npmRegistry = new PouchDB(config.npmRegistryEndpoint);
 
 const defaultOptions = {
   include_docs: true,
   conflicts: false,
   attachments: false,
 };
+
+const indexQueue = cargo((pkgs, done) => {
+  indexPackages(pkgs)
+    .then(done)
+    .catch(done);
+}, config.catchUpToChangesBatchSize);
 
 async function main() {
   if (config.bootstrap) {
@@ -89,17 +94,6 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
       return_docs: false,
     });
 
-    const q = cargo((pkgs, done) => {
-      indexPackages(pkgs)
-        .then(() => {
-          if (pkgs.pop().seq >= catchUpto) {
-            changes.cancel();
-          }
-        })
-        .then(done)
-        .catch(done);
-    }, config.catchUpToChangesBatchSize);
-
     changes.on('change', change => {
       if (change.deleted) {
         console.log(
@@ -111,11 +105,14 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
         console.log(
           `⚙️ Seq: ${change.seq}: ${change.doc.name} has been added/changed`
         );
-        q.push(change, err => {
+        indexQueue.push(change, err => {
           if (err) {
             reject(err);
           }
         });
+      }
+      if (change.seq > catchUpto) {
+        changes.cancel();
       }
     });
     changes.on('complete', resolve); // Called when cancel() called
@@ -141,24 +138,18 @@ async function trackChanges(caughtUpTo) {
       return_docs: false,
     });
 
-    const q = queue((pkg, done) => {
-      indexPackages([pkg])
-        .then(done)
-        .catch(done);
-    }, 1);
-
     changes.on('change', change => {
       if (change.deleted) {
         console.log(
           `🤷🏼‍ Seq: ${change.seq}: ${
-            change.doc.id
+            change.doc.name
           } has been deleted but will be kept in database`
         );
       } else {
         console.log(
           `⚙️ Seq: ${change.seq}: ${change.doc.name} has been added/changed`
         );
-        q.push(change, err => {
+        indexQueue.push(change, err => {
           if (err) {
             reject(err);
           }

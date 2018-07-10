@@ -1,7 +1,9 @@
+import config from '../config';
+
 export default {
-  index_patterns: ['npm-registry*'],
+  index_patterns: [config.indexName],
   mappings: {
-    _doc: {
+    [config.docType]: {
       properties: {
         seq: {
           type: 'integer',

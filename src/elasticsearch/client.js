@@ -2,7 +2,7 @@ import elasticsearch from 'elasticsearch';
 import indexTemplate from './indexTemplate';
 import config from '../config';
 
-let client = null;
+let client;
 
 export default async function getClient() {
   if (client) {
@@ -10,13 +10,20 @@ export default async function getClient() {
   }
 
   client = new elasticsearch.Client({
-    host: config.elasticSearchEndpoint,
+    host: config.elasticsearchEndpoint,
     httpAuth: `${config.user}:${config.password}`,
   });
 
   if (config.indexingForTheFirstTime) {
-    await client.indices.delete({ index: config.indexName });
+    await client.indices
+      .get({ index: config.indexName })
+      .then(() => {
+        client.indices.delete({ index: config.indexName });
+      })
+      .catch(() => {});
+
     await putTemplate(client);
+    await client.indices.create({ index: config.indexName });
   }
 
   return client;
