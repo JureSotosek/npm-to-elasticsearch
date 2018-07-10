@@ -45,7 +45,7 @@ async function bootstrap(lastBootstrapedId) {
 
     const options =
       lastId === undefined
-        ? { startkey: '@' }
+        ? {}
         : {
             startkey: lastId,
             skip: 1,
@@ -104,7 +104,7 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
       if (change.deleted) {
         console.log(
           `🤷🏼‍ Seq: ${change.seq}: ${
-            change.doc.id
+            change.doc.name
           } has been deleted but will be kept in the database`
         );
       } else {
