@@ -10,7 +10,7 @@ export default {
   password: 'n3UOpLkY73Du8T4Dg5agvCg5',
   //if you change the indexName you also have to change the "index-patterns"
   //field in the ./elasticsearch/indexTemplate.json file to match it
-  indexName: 'npm-registry-test2',
+  indexName: 'npm-registry-test',
   docType: '_doc',
   indexingForTheFirstTime: true,
   bootstrap: false,
