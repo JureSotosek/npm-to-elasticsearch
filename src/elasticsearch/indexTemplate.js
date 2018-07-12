@@ -5,6 +5,9 @@ export default {
   mappings: {
     [config.docType]: {
       properties: {
+        deleted: {
+          type: 'boolean',
+        },
         seq: {
           type: 'integer',
         },
