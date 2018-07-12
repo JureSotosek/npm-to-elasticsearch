@@ -20,7 +20,7 @@ yarn dev
 
 ```sh
 yarn build
-yarn test
+yarn start
 ```
 
 ## Env variables
