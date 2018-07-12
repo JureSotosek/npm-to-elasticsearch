@@ -9,6 +9,10 @@ export default async function getClient() {
     return client;
   }
 
+  if (!config.elasticsearchEndpoint || !config.user || !config.password) {
+    throw 'Config not set correctly';
+  }
+
   client = new elasticsearch.Client({
     host: config.elasticsearchEndpoint,
     httpAuth: `${config.user}:${config.password}`,
