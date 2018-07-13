@@ -1,6 +1,8 @@
 # 👨🏼‍💻emma-replicator👬
 
-npm to Elasticsearch replication tool.
+npm to Elasticsearch replication tool
+
+*this code base was very much inspired and is modeled after Algolia's [npm-search](https://github.com/algolia/npm-search)
 
 ## Overview
 
@@ -33,4 +35,6 @@ See [config.js](./config.js):
 
 ## License
 
-MIT © [Jure Sotošek](https://github.com/juresotosek)
+MIT [Jure Sotošek](https://github.com/juresotosek)
+
+MIT [Algolia](Algolia.com), Inc
