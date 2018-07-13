@@ -1,6 +1,8 @@
 # 👨🏼‍💻emma-replicator👬
 
-npm to Elasticsearch replication tool, this code base was very much inspired by Algolia's [npm-search](https://github.com/algolia/npm-search)
+npm to Elasticsearch replication tool
+
+*this code base was very much inspired and is modeled after Algolia's [npm-search](https://github.com/algolia/npm-search)
 
 ## Overview
 
