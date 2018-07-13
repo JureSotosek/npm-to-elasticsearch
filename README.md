@@ -33,6 +33,6 @@ See [config.js](./config.js):
 
 ## License
 
-MIT © [Jure Sotošek](https://github.com/juresotosek)
+MIT [Jure Sotošek](https://github.com/juresotosek)
 
 MIT [Algolia](Algolia.com), Inc
