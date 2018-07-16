@@ -10,7 +10,7 @@ This is a failure resilient npm registry to Elasticsearch index replication proc
 It will replicate all npm packages to an Elasticsearch index and keep it up to date.
 
 The replication should always be running.
-If the process fails, restart but input correct values in to the config.
+If the process fails, restart but set correct values as env variables. Config values from the [config](./src/config.js) file get overwriten by the env variables with the same name.
 
 ## Development
 
@@ -25,13 +25,29 @@ yarn build
 yarn start
 ```
 
+## Document format
+
+TODO
+
 ## Env variables
 
 See [config.js](./config.js):
 
-- `ELASTICSEARCH_ENDPOINT`: elasticsearch instance url
-- `ELASTICSEARCH_USER`: elasticsearch instance username
-- `ELASTICSEARCH_PASSWORD`: elasticsearch instance password
+### Required:
+- `elasticsearch_endpoint`: elasticsearch instance url
+- `user`: elasticsearch instance username
+- `password`: elasticsearch instance password
+
+### Other:
+- `npmRegistryEndpoint` - default: `https://replicate.npmjs.com/registry` npm registry url
+- `indexName` - default: `npm-registry` name of the elasticsearch index
+- `docType` - default: `_doc` doc type of documents in elasticsearch index
+- `indexingForTheFirstTime` - default: `false` bool value, if index should be initialized, templates set
+- `bootstrap` - default: `true` bool value, should bootstrap happen
+- `lastBootstrapedId` - default: `undefined` last bootstraped id
+- `bootstrapBatchSize` - default: `25` how many documents to index at a time, reduce this value if you are having memory problems
+- `catchUpToChangesBatchSize` - default: `25` how many changes to index at a time, reduce this value if you are having memory problems
+- `caughtUpTo` - default: `undefined` the seq your index is caught up to
 
 ## License
 
