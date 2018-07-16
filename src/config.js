@@ -7,7 +7,7 @@ export default {
   elasticsearchEndpoint: process.env.ELASTICSEARCH_ENDPOINT,
   user: process.env.ELASTICSEARCH_USER,
   password: process.env.ELASTICSEARCH_PASSWORD,
-  indexName: 'npm-registry-test',
+  indexName: 'npm-registry',
   docType: '_doc',
   indexingForTheFirstTime: true,
   bootstrap: true,
