@@ -9,23 +9,10 @@ export default function formatPackages(pkgs) {
     const niceDoc = new nicePackage(pkg.doc);
 
     return {
-      deleted: pkg.deleted || null,
+      deleted: pkg.deleted || false,
       seq: pkg.seq,
       name: niceDoc.name,
       version: niceDoc.version || null,
-      description: niceDoc.description || null,
-      repository: niceDoc.repository
-        ? {
-            url: niceDoc.repository.url || null,
-            type: niceDoc.repository.type || null,
-          }
-        : null,
-      license: niceDoc.license
-        ? {
-            url: niceDoc.license.url || null,
-            type: niceDoc.license.type || null,
-          }
-        : null,
       dependencies: niceDoc.dependencies
         ? Object.keys(niceDoc.dependencies)
         : [],
@@ -42,17 +29,7 @@ export default function formatPackages(pkgs) {
             return { name: key, version: niceDoc.devDependencies[key] };
           })
         : [],
-      homepage: niceDoc.homepage
-        ? {
-            url: niceDoc.homepage.url || null,
-          }
-        : null,
       versions: niceDoc.versions || null,
-      readme: niceDoc.readme || null,
-      created: niceDoc.created || null,
-      modified: niceDoc.modified || null,
-      lastPublisher: niceDoc.lastPublisher || null,
-      owners: niceDoc.owners || null,
     };
   });
 }

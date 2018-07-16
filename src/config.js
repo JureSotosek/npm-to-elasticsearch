@@ -1,12 +1,13 @@
 import { config } from 'dotenv';
 config();
 
-export default {
+const defaultConfig = {
   npmRegistryEndpoint: 'https://replicate.npmjs.com/registry',
 
-  elasticsearchEndpoint: process.env.ELASTICSEARCH_ENDPOINT,
-  user: process.env.ELASTICSEARCH_USER,
-  password: process.env.ELASTICSEARCH_PASSWORD,
+  elasticsearchEndpoint:
+    'https://randomnumbersandletters.us-east-1.aws.found.io:9243/',
+  user: 'elastic',
+  password: '',
   indexName: 'npm-registry',
   docType: '_doc',
   indexingForTheFirstTime: true,
@@ -16,3 +17,18 @@ export default {
   catchUpToChangesBatchSize: 25,
   caughtUpTo: undefined,
 };
+
+export default Object.entries(defaultConfig).reduce(
+  (res, [key, defaultValue]) => ({
+    ...res,
+    [key]:
+      key in process.env
+        ? JSON.parse(
+            typeof defaultValue === 'string'
+              ? `"${process.env[key]}"`
+              : process.env[key]
+          )
+        : defaultValue,
+  }),
+  {}
+);

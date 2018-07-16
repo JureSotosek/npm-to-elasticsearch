@@ -17,29 +17,6 @@ export default {
         version: {
           type: 'keyword',
         },
-        description: {
-          type: 'text',
-        },
-        repository: {
-          properties: {
-            url: {
-              type: 'keyword',
-            },
-            type: {
-              type: 'keyword',
-            },
-          },
-        },
-        license: {
-          properties: {
-            url: {
-              type: 'keyword',
-            },
-            type: {
-              type: 'keyword',
-            },
-          },
-        },
         dependencies: {
           type: 'keyword',
         },
@@ -68,13 +45,6 @@ export default {
             },
           },
         },
-        homepage: {
-          properties: {
-            url: {
-              type: 'keyword',
-            },
-          },
-        },
         versions: {
           type: 'nested',
           properties: {
@@ -83,36 +53,6 @@ export default {
             },
             date: {
               type: 'date',
-            },
-          },
-        },
-        readme: {
-          type: 'text',
-        },
-        created: {
-          type: 'date',
-        },
-        modified: {
-          type: 'date',
-        },
-        lastPublisher: {
-          properties: {
-            name: {
-              type: 'keyword',
-            },
-            email: {
-              type: 'keyword',
-            },
-          },
-        },
-        owners: {
-          type: 'nested',
-          properties: {
-            name: {
-              type: 'keyword',
-            },
-            email: {
-              type: 'keyword',
             },
           },
         },
