@@ -23,34 +23,25 @@ async function main() {
   //init elasticsearch client
   await getClient();
 
-  if (config.bootstrap && config.expandDependencies) {
-    //get the last trusted seq
-    const lastSeqAtBootstrap = await getLastSeq();
-    //index all the already existing documents
+  //get the last trusted seq
+  const lastSeqAtBootstrap = await getLastSeq();
+
+  //bootstrap
+  if (config.bootstrap) {
     await bootstrap(config.lastBootstrapedId, false);
-    //index all the documents with expanded dependencies
-    if (config.expandDependencies) {
-      await bootstrap(config.lastBootstrapedId, true);
-    }
-    //Catch up with changes that were missed
-    const catchUpto = await getLastSeq();
-    await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
-    //keep track of further changes
-    await trackChanges(catchUpto);
-  } else if (config.expandDependencies) {
-    console.log('Only expanding dependencies');
-    //get the last trusted seq
-    const lastSeqAtBootstrap = await getLastSeq();
-    //index all the already existing documents
-    await bootstrap(config.lastBootstrapedId, true);
-    //Catch up with changes that were missed
-    const catchUpto = await getLastSeq();
-    await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
-    //keep track of further changes
-    await trackChanges(catchUpto);
   }
+
+  //expand dependencies
+  if (config.expandDependencies) {
+    await bootstrap(config.lastBootstrapedId, true);
+  }
+
+  //Catch up with changes that were missed
+  const catchUpto = await getLastSeq();
+  await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
+
   //keep track changes withouth bootstrap
-  await trackChanges(config.caughtUpTo || 0);
+  await trackChanges(config.caughtUpTo || catchUpto);
 }
 
 main().catch(error);
@@ -113,6 +104,11 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
     });
 
     changes.on('change', change => {
+      if (change.seq > catchUpto) {
+        console.log('🏃🏼 Caught up with changes');
+        changes.cancel();
+        return;
+      }
       if (change.deleted) {
         console.log(
           `🤷🏼‍ Seq: ${change.seq}: ${
@@ -129,9 +125,6 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
           }
         });
       }
-      if (change.seq > catchUpto) {
-        changes.cancel();
-      }
     });
     changes.on('complete', resolve); // Called when cancel() called
     changes.on('error', reject);
@@ -143,14 +136,10 @@ async function trackChanges(caughtUpTo) {
     `👀 Live tracking of changes since seq: ${caughtUpTo} has started`
   );
 
-  if (caughtUpTo === undefined || caughtUpTo === null) {
-    throw 'Field "caughtUpTo" not supplied';
-  }
-
   return new Promise((resolve, reject) => {
     const changes = npmRegistry.changes({
       ...defaultOptions,
-      since: caughtUpTo,
+      since: caughtUpTo || 0,
       live: true,
       batch_size: 1,
       return_docs: false,

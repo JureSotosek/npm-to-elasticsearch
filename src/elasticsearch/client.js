@@ -22,6 +22,7 @@ export default async function getClient() {
     await client.indices
       .get({ index: config.indexName })
       .then(() => {
+        console.log('🗑 Deleting index:', config.indexName);
         client.indices.delete({ index: config.indexName });
       })
       .catch(() => {});
