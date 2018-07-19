@@ -20,6 +20,9 @@ export default {
         dependencies: {
           type: 'keyword',
         },
+        expandedDependencies: {
+          type: 'keyword',
+        },
         dependenciesWithVersions: {
           type: 'nested',
           properties: {
@@ -32,6 +35,9 @@ export default {
           },
         },
         devDependencies: {
+          type: 'keyword',
+        },
+        expandedDevDependencies: {
           type: 'keyword',
         },
         devDependenciesWithVersions: {

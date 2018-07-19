@@ -25,8 +25,8 @@ export default async function indexPackages(pkgs, expandDependencies) {
       );
       return {
         ...doc,
-        dependencies: expandedDependencies,
-        devDependencies: expandedDevDependencies,
+        expandedDependencies: expandedDependencies,
+        expandedDevDependencies: expandedDevDependencies,
       };
     } else {
       return doc;
