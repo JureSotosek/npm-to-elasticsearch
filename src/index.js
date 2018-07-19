@@ -33,9 +33,10 @@ async function main() {
       await bootstrap(config.lastBootstrapedId, true);
     }
     //Catch up with changes that were missed
-    await catchUpWithChanges(lastSeqAtBootstrap);
+    const catchUpto = await getLastSeq();
+    await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
     //keep track of further changes
-    await trackChanges(seqToCatchUpTo);
+    await trackChanges(catchUpto);
   } else if (config.expandDependencies) {
     console.log('Only expanding dependencies');
     //get the last trusted seq
@@ -43,9 +44,10 @@ async function main() {
     //index all the already existing documents
     await bootstrap(config.lastBootstrapedId, true);
     //Catch up with changes that were missed
-    await catchUpWithChanges(lastSeqAtBootstrap);
+    const catchUpto = await getLastSeq();
+    await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
     //keep track of further changes
-    await trackChanges(seqToCatchUpTo);
+    await trackChanges(catchUpto);
   }
   //keep track changes withouth bootstrap
   await trackChanges(config.caughtUpTo || 0);
@@ -96,9 +98,7 @@ async function bootstrap(lastBootstrapedId, expandDependencies) {
   }
 }
 
-async function catchUpWithChanges(lastSeqAtBootstrap) {
-  const catchUpto = await getLastSeq();
-
+async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
   console.log(
     `🏎 Catching up with missed changes from seq: ${lastSeqAtBootstrap} to seq: ${catchUpto}`
   );
