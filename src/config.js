@@ -12,7 +12,7 @@ const defaultConfig = {
   docType: '_doc',
   indexingForTheFirstTime: true,
   bootstrap: true,
-  expandDependencies: true,
+  expandDependencies: false,
   lastBootstrapedId: undefined,
   bootstrapBatchSize: 25,
   catchUpToChangesBatchSize: 25,
