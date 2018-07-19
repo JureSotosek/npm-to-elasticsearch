@@ -25,7 +25,6 @@ export default async function getClient() {
         client.indices.delete({ index: config.indexName });
       })
       .catch(() => {});
-
     await putTemplate(client);
     await client.indices.create({ index: config.indexName });
   }

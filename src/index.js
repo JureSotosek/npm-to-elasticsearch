@@ -1,5 +1,6 @@
 import PouchDB from 'pouchdb';
 import cargo from 'async/cargo';
+import getClient from './elasticsearch/client';
 import indexPackages from './indexPackages';
 import { getLastSeq } from './npm';
 import config from './config';
@@ -19,14 +20,20 @@ const indexQueue = cargo((pkgs, done) => {
 }, config.catchUpToChangesBatchSize);
 
 async function main() {
+  //init elasticsearch client
+  await getClient();
+
   if (config.bootstrap) {
     //get the last trusted seq
     const lastSeqAtBootstrap = await getLastSeq();
     //index all the already existing documents
-    await bootstrap(config.lastBootstrapedId);
+    await bootstrap(config.lastBootstrapedId, false);
+    //index all the documents with expanded dependencies
+    if (config.expandDependencies) {
+      await bootstrap(config.lastBootstrapedId, true);
+    }
     //Catch up with changes that were missed
-    const seqToCatchUpTo = await getLastSeq();
-    await catchUpWithChanges(lastSeqAtBootstrap, seqToCatchUpTo);
+    await catchUpWithChanges(lastSeqAtBootstrap);
     //keep track of further changes
     await trackChanges(seqToCatchUpTo);
   }
@@ -36,14 +43,14 @@ async function main() {
 
 main().catch(error);
 
-async function bootstrap(lastBootstrapedId) {
+async function bootstrap(lastBootstrapedId, expandDependencies) {
   console.log('🚀 Starting the bootstrap!');
 
   await bootstrapLoop(lastBootstrapedId, 0);
 
   async function bootstrapLoop(lastId, numberOfDocumentsBootstraped) {
     console.log(
-      `🙄 Boostraping ${
+      `🙄 ${expandDependencies ? 'Expanding' : 'Bootstraping'} ${
         config.bootstrapBatchSize
       } docs from doc number ${numberOfDocumentsBootstraped} of id: ${lastId}`
     );
@@ -70,17 +77,18 @@ async function bootstrap(lastBootstrapedId) {
 
         const newLastId = res.rows[res.rows.length - 1].id;
 
-        return indexPackages(res.rows).then(() =>
-          bootstrapLoop(
-            newLastId,
-            numberOfDocumentsBootstraped + config.bootstrapBatchSize
-          )
+        await indexPackages(res.rows, expandDependencies);
+        return bootstrapLoop(
+          newLastId,
+          numberOfDocumentsBootstraped + config.bootstrapBatchSize
         );
       });
   }
 }
 
-async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
+async function catchUpWithChanges(lastSeqAtBootstrap) {
+  const catchUpto = await getLastSeq();
+
   console.log(
     `🏎 Catching up with missed changes from seq: ${lastSeqAtBootstrap} to seq: ${catchUpto}`
   );
