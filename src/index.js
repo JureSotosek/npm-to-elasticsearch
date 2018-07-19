@@ -23,7 +23,7 @@ async function main() {
   //init elasticsearch client
   await getClient();
 
-  if (config.bootstrap && config.expandDependencies) {
+  if (config.bootstrap) {
     //get the last trusted seq
     const lastSeqAtBootstrap = await getLastSeq();
     //index all the already existing documents
@@ -32,16 +32,6 @@ async function main() {
     if (config.expandDependencies) {
       await bootstrap(config.lastBootstrapedId, true);
     }
-    //Catch up with changes that were missed
-    await catchUpWithChanges(lastSeqAtBootstrap);
-    //keep track of further changes
-    await trackChanges(seqToCatchUpTo);
-  } else if (config.expandDependencies) {
-    console.log('Only expanding dependencies');
-    //get the last trusted seq
-    const lastSeqAtBootstrap = await getLastSeq();
-    //index all the already existing documents
-    await bootstrap(config.lastBootstrapedId, true);
     //Catch up with changes that were missed
     await catchUpWithChanges(lastSeqAtBootstrap);
     //keep track of further changes
