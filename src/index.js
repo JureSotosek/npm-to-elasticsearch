@@ -22,24 +22,19 @@ const indexQueue = cargo((pkgs, done) => {
 async function main() {
   //init elasticsearch client
   await getClient();
-
   //get the last trusted seq
   const lastSeqAtBootstrap = await getLastSeq();
-
   //bootstrap
   if (config.bootstrap) {
     await bootstrap(config.lastBootstrapedId, false);
   }
-
   //expand dependencies
   if (config.expandDependencies) {
     await bootstrap(config.lastBootstrapedId, true);
   }
-
   //Catch up with changes that were missed
   const catchUpto = await getLastSeq();
   await catchUpWithChanges(lastSeqAtBootstrap, catchUpto);
-
   //keep track changes withouth bootstrap
   await trackChanges(config.caughtUpTo || catchUpto);
 }
@@ -47,7 +42,11 @@ async function main() {
 main().catch(error);
 
 async function bootstrap(lastBootstrapedId, expandDependencies) {
-  console.log('🚀 Starting the bootstrap!');
+  console.log(
+    `🚀 Starting the ${
+      expandDependencies ? 'expansion of dependencies' : 'bootstrap'
+    }!`
+  );
 
   await bootstrapLoop(lastBootstrapedId, 0);
 
