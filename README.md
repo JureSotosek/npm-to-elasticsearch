@@ -44,6 +44,7 @@ See [config.js](./config.js):
 - `docType` - default: `_doc` doc type of documents in elasticsearch index
 - `indexingForTheFirstTime` - default: `false` bool value, if index should be initialized, templates set
 - `bootstrap` - default: `true` bool value, should bootstrap happen
+- `expandDependencies` - default: `false` bool value, should docs include expandedDependencies
 - `lastBootstrapedId` - default: `undefined` last bootstraped id
 - `bootstrapBatchSize` - default: `25` how many documents to index at a time, reduce this value if you are having memory problems
 - `catchUpToChangesBatchSize` - default: `25` how many changes to index at a time, reduce this value if you are having memory problems
