@@ -1,6 +1,4 @@
 import nicePackage from 'nice-package';
-import getClient from './elasticsearch/client';
-import config from './config';
 
 export default async function formatPackages(pkgs) {
   const validPkgs = pkgs.filter(pkg => {
