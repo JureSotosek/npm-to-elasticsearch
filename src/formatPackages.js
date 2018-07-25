@@ -9,6 +9,7 @@ export default async function formatPackages(pkgs) {
     const niceDoc = new nicePackage(pkg.doc);
 
     return {
+      source: 'npm',
       deleted: pkg.deleted || false,
       seq: pkg.seq,
       name: niceDoc.name,
@@ -29,7 +30,6 @@ export default async function formatPackages(pkgs) {
             return { name: key, version: niceDoc.devDependencies[key] };
           })
         : [],
-      versions: niceDoc.versions || null,
     };
   });
 }

@@ -5,6 +5,9 @@ export default {
   mappings: {
     [config.docType]: {
       properties: {
+        source: {
+          type: 'keyword',
+        },
         deleted: {
           type: 'boolean',
         },
@@ -48,17 +51,6 @@ export default {
             },
             version: {
               type: 'keyword',
-            },
-          },
-        },
-        versions: {
-          type: 'nested',
-          properties: {
-            number: {
-              type: 'keyword',
-            },
-            date: {
-              type: 'date',
             },
           },
         },
