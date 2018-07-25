@@ -2,8 +2,6 @@ import concatMap from 'concat-map';
 import formatPackages from './formatPackages';
 import getClient from './elasticsearch/client';
 import config from './config';
-import { resolve } from 'dns';
-import { rejects } from 'assert';
 
 export default async function indexPackages(pkgs, expandDependencies) {
   const docs = await formatPackages(pkgs);
@@ -43,7 +41,6 @@ export default async function indexPackages(pkgs, expandDependencies) {
         index: {
           _index: config.indexName,
           _type: config.docType,
-          _id: doc.name,
         },
       },
       {
