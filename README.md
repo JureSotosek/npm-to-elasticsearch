@@ -1,4 +1,4 @@
-# 👨🏼‍💻emma-replicator👬
+# 👨🏼‍💻npm-to-elasticsearch👬
 
 npm to Elasticsearch replication tool
 
