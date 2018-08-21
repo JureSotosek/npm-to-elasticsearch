@@ -9,6 +9,8 @@ This code base was very much inspired and is modeled after [Algolia's](https://w
 This is a failure resilient npm registry to Elasticsearch index replication process.
 It will replicate all npm packages to an Elasticsearch index and keep it up to date.
 
+It was primeraly made to be the source of suggestions for [npm-suggestions](https://github.com/juresotosek/npm-suggestions).
+
 The replication should always be running.
 If the process fails, restart but set correct values as env variables. Config values from the [config](./src/config.js) file get overwriten by the env variables with the same name.
 
@@ -34,11 +36,13 @@ TODO
 See [config.js](./config.js):
 
 ### Required:
+
 - `elasticsearch_endpoint`: elasticsearch instance url
 - `user`: elasticsearch instance username
 - `password`: elasticsearch instance password
 
 ### Other:
+
 - `npmRegistryEndpoint` - default: `https://replicate.npmjs.com/registry` npm registry url
 - `indexName` - default: `npm-registry` name of the elasticsearch index
 - `docType` - default: `_doc` doc type of documents in elasticsearch index

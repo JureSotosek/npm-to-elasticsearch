@@ -54,6 +54,9 @@ export default {
             },
           },
         },
+        allDependencies: {
+          type: 'keyword',
+        },
       },
     },
   },
