@@ -17,6 +17,7 @@ const defaultConfig = {
   bootstrapBatchSize: 25,
   catchUpToChangesBatchSize: 25,
   caughtUpTo: undefined,
+  includeVersions: true,
 };
 
 export default Object.entries(defaultConfig).reduce(

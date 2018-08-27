@@ -1,5 +1,7 @@
 import nicePackage from 'nice-package';
 
+import config from './config';
+
 export default async function formatPackages(pkgs) {
   const validPkgs = pkgs.filter(pkg => {
     return pkg.doc.name !== undefined;
@@ -37,9 +39,13 @@ export default async function formatPackages(pkgs) {
       name: niceDoc.name,
       version: niceDoc.version || null,
       dependencies,
-      dependenciesWithVersions,
+      dependenciesWithVersions: config.includeVersions
+        ? dependenciesWithVersions
+        : null,
       devDependencies,
-      devDependenciesWithVersions,
+      devDependenciesWithVersions: config.includeVersions
+        ? devDependenciesWithVersions
+        : null,
       allDependencies,
     };
   });
