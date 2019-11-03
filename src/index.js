@@ -110,9 +110,7 @@ async function catchUpWithChanges(lastSeqAtBootstrap, catchUpto) {
       }
       if (change.deleted) {
         console.log(
-          `🤷🏼‍ Seq: ${change.seq}: ${
-            change.doc.name
-          } has been deleted but will be kept in the database`
+          `🤷🏼‍ Seq: ${change.seq}: ${change.doc.name} has been deleted but will be kept in the database`
         );
       } else {
         console.log(
@@ -147,9 +145,7 @@ async function trackChanges(caughtUpTo) {
     changes.on('change', change => {
       if (change.deleted) {
         console.log(
-          `🤷🏼‍ Seq: ${change.seq}: ${
-            change.doc.name
-          } has been deleted but will be kept in database`
+          `🤷🏼‍ Seq: ${change.seq}: ${change.doc.name} has been deleted but will be kept in database`
         );
       } else {
         console.log(

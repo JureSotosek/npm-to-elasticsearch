@@ -14,21 +14,25 @@ export default async function formatPackages(pkgs) {
       ? Object.keys(niceDoc.dependencies)
       : [];
 
-    const dependenciesWithVersions = niceDoc.dependencies
-      ? Object.keys(niceDoc.dependencies).map(key => {
-          return { name: key, version: niceDoc.dependencies[key] };
-        })
-      : [];
+    const dependenciesWithVersions = config.includeVersions
+      ? niceDoc.dependencies
+        ? Object.keys(niceDoc.dependencies).map(key => {
+            return { name: key, version: niceDoc.dependencies[key] };
+          })
+        : null
+      : null;
 
     const devDependencies = niceDoc.devDependencies
       ? Object.keys(niceDoc.devDependencies)
       : [];
 
-    const devDependenciesWithVersions = niceDoc.devDependencies
-      ? Object.keys(niceDoc.devDependencies).map(key => {
-          return { name: key, version: niceDoc.devDependencies[key] };
-        })
-      : [];
+    const devDependenciesWithVersions = config.includeVersions
+      ? niceDoc.devDependencies
+        ? Object.keys(niceDoc.devDependencies).map(key => {
+            return { name: key, version: niceDoc.devDependencies[key] };
+          })
+        : null
+      : null;
 
     const allDependencies = dependencies.concat(devDependencies);
 
@@ -39,13 +43,9 @@ export default async function formatPackages(pkgs) {
       name: niceDoc.name,
       version: niceDoc.version || null,
       dependencies,
-      dependenciesWithVersions: config.includeVersions
-        ? dependenciesWithVersions
-        : null,
+      dependenciesWithVersions,
       devDependencies,
-      devDependenciesWithVersions: config.includeVersions
-        ? devDependenciesWithVersions
-        : null,
+      devDependenciesWithVersions,
       allDependencies,
     };
   });
